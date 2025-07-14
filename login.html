@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | SuperWorld</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to bottom right, #0f0f0f, #1a1a1a);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+      width: 90%;
+      max-width: 400px;
+      animation: fadeIn 1s ease;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+    }
+    input {
+      background: #333;
+      color: white;
+    }
+    button {
+      background: linear-gradient(90deg, #ff9100, #ffcc00);
+      color: black;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Masuk ke SuperWorld</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Daftar Baru</button>
+    <button onclick="guestLogin()">Masuk sebagai Guest</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCYLbIFVfaO487KN2z4ABDPTx1j0mBHF-o",
+      authDomain: "superworld1.firebaseapp.com",
+      databaseURL: "https://superworld1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "superworld1",
+      storageBucket: "superworld1.appspot.com",
+      messagingSenderId: "",
+      appId: ""
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const status = document.getElementById('status');
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(user => {
+          localStorage.setItem("uid", user.user.uid);
+          window.location.href = "lobby.html";
+        })
+        .catch(err => status.textContent = err.message);
+    }
+
+    function register() {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(user => {
+          const uid = user.user.uid;
+          db.ref("users/" + uid).set({
+            id: uid,
+            email: email,
+            username: "",
+            password: pass,
+            daftar: new Date().toISOString(),
+            hp: 100,
+            coin: 0,
+            world: {},
+            karakter: "default"
+          });
+          localStorage.setItem("uid", uid);
+          window.location.href = "lobby.html";
+        })
+        .catch(err => status.textContent = err.message);
+    }
+
+    function guestLogin() {
+      auth.signInAnonymously()
+        .then(user => {
+          const uid = user.user.uid;
+          db.ref("users/" + uid).set({
+            id: uid,
+            username: "Guest" + Math.floor(Math.random() * 9999),
+            daftar: new Date().toISOString(),
+            hp: 100,
+            coin: 0,
+            world: {},
+            karakter: "default"
+          });
+          localStorage.setItem("uid", uid);
+          window.location.href = "lobby.html";
+        })
+        .catch(err => status.textContent = err.message);
+    }
+
+    window.onload = function() {
+      const uid = localStorage.getItem("uid");
+      if (uid) window.location.href = "lobby.html";
+    }
+  </script>
+</body>
+</html>
