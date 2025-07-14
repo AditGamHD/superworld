@@ -9,30 +9,66 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #1b1b1b;
+      background-color: #0f0f0f;
       overflow: hidden;
+      font-family: sans-serif;
     }
-    #gameCanvas {
-      image-rendering: pixelated;
-      background: #333;
+    canvas {
+      background-color: #1e1e1e;
       display: block;
     }
     #ui {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 0;
+      left: 0;
+      width: 100%;
       color: white;
-      font-family: Arial, sans-serif;
-      font-size: 1rem;
-      background: rgba(0,0,0,0.4);
       padding: 10px;
-      border-radius: 10px;
+      box-sizing: border-box;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .button, select, input {
+      padding: 8px 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #ff9100;
+      color: #000;
+      cursor: pointer;
+    }
+    .button:hover {
+      background: #ffaa00;
+    }
+    #gameCanvas {
+      width: 100vw;
+      height: calc(100vh - 120px);
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="640" height="360"></canvas>
-  <div id="ui">Memuat world...</div>
+  <div id="ui">
+    <div class="row">
+      <span id="info">Memuat world...</span>
+      <button class="button" onclick="logout()">Logout</button>
+    </div>
+    <div class="row">
+      <input id="worldInput" placeholder="Masukkan nama world">
+      <button class="button" onclick="loadWorld()">Masuk World</button>
+      <button class="button" onclick="saveWorld()">Simpan</button>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -42,7 +78,6 @@
       authDomain: "superworld1.firebaseapp.com",
       databaseURL: "https://superworld1-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "superworld1",
-      storageBucket: "superworld1.appspot.com",
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -50,44 +85,21 @@
     const uid = localStorage.getItem("uid");
     if (!uid) window.location.href = "login.html";
 
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    let worldId = "default";
     const tileSize = 32;
     const worldSize = 20;
-
-    const player = {
-      x: 5,
-      y: 5,
-      frame: 1,
-      direction: 1,
-      image: new Image()
-    };
-    player.image.src = `asset/hero/Idle (1).png`;
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
     let world = [];
-    let worldId = "default_world";
+    let player = { x: 5, y: 5, frame: 1, image: new Image() };
+    player.image.src = `asset/hero/Idle (1).png`;
 
-    // Load world from Firebase or create new
-    db.ref("worlds/" + worldId).once("value").then(snapshot => {
-      if (snapshot.exists()) {
-        world = snapshot.val();
-        document.getElementById("ui").textContent = "World dimuat.";
-      } else {
-        // create empty world
-        for (let y = 0; y < worldSize; y++) {
-          let row = [];
-          for (let x = 0; x < worldSize; x++) {
-            row.push(0); // 0 = kosong
-          }
-          world.push(row);
-        }
-        db.ref("worlds/" + worldId).set(world);
-        document.getElementById("ui").textContent = "World baru dibuat.";
-      }
-      drawWorld();
-    });
+    function logout() {
+      localStorage.removeItem("uid");
+      window.location.href = "login.html";
+    }
 
-    // Draw loop
     function drawWorld() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let y = 0; y < worldSize; y++) {
@@ -101,7 +113,26 @@
       ctx.drawImage(player.image, player.x * tileSize, player.y * tileSize, tileSize, tileSize);
     }
 
-    // Move player
+    function loadWorld() {
+      worldId = document.getElementById("worldInput").value || "default";
+      db.ref("worlds/" + worldId).once("value").then(snapshot => {
+        if (snapshot.exists()) {
+          world = snapshot.val();
+          document.getElementById("info").textContent = `World '${worldId}' dimuat.`;
+        } else {
+          world = Array(worldSize).fill().map(() => Array(worldSize).fill(0));
+          db.ref("worlds/" + worldId).set(world);
+          document.getElementById("info").textContent = `World '${worldId}' baru dibuat.`;
+        }
+        drawWorld();
+      });
+    }
+
+    function saveWorld() {
+      db.ref("worlds/" + worldId).set(world);
+      document.getElementById("info").textContent = `World '${worldId}' disimpan.`;
+    }
+
     window.addEventListener("keydown", e => {
       if (e.key === "ArrowUp") player.y--;
       if (e.key === "ArrowDown") player.y++;
@@ -110,12 +141,13 @@
       drawWorld();
     });
 
-    // Idle animation loop
     setInterval(() => {
       player.frame = player.frame >= 10 ? 1 : player.frame + 1;
       player.image.src = `asset/hero/Idle (${player.frame}).png`;
       drawWorld();
     }, 200);
+
+    loadWorld();
   </script>
 </body>
 </html>
