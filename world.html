@@ -1,153 +1,167 @@
-<!-- world.html -->
+<!-- world.html portrait layout mirip Growtopia HP -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World | SuperWorld</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      background-color: #0f0f0f;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
-      font-family: sans-serif;
+      background: #121212;
+      font-family: Arial, sans-serif;
     }
-    canvas {
-      background-color: #1e1e1e;
-      display: block;
-    }
-    #ui {
+    #top-bar {
       position: absolute;
       top: 0;
-      left: 0;
       width: 100%;
+      height: 60px;
+      background: #000;
       color: white;
-      padding: 10px;
-      box-sizing: border-box;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
+      padding: 0 10px;
+      z-index: 100;
     }
-    .button, select, input {
-      padding: 8px 12px;
-      font-size: 1rem;
+    #top-bar button {
+      background: orange;
       border: none;
-      border-radius: 8px;
-      background: #ff9100;
-      color: #000;
+      padding: 6px 10px;
+      border-radius: 4px;
       cursor: pointer;
     }
-    .button:hover {
-      background: #ffaa00;
+    #canvas-container {
+      position: absolute;
+      top: 60px;
+      bottom: 120px;
+      left: 0;
+      right: 0;
+      background: #ff2e2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    #gameCanvas {
-      width: 100vw;
-      height: calc(100vh - 120px);
+    canvas {
+      background: #222;
+      image-rendering: pixelated;
+    }
+    #bottom-ui {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 120px;
+      background: #00c464;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 10px;
+      z-index: 100;
+    }
+    .btn {
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      background: white;
+      color: black;
+    }
+    .dpad {
+      display: grid;
+      grid-template-columns: 50px 50px 50px;
+      grid-template-rows: 50px 50px 50px;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+    .dpad button {
+      width: 50px;
+      height: 50px;
+      background: white;
     }
   </style>
 </head>
 <body>
-  <div id="ui">
-    <div class="row">
-      <span id="info">Memuat world...</span>
-      <button class="button" onclick="logout()">Logout</button>
-    </div>
-    <div class="row">
-      <input id="worldInput" placeholder="Masukkan nama world">
-      <button class="button" onclick="loadWorld()">Masuk World</button>
-      <button class="button" onclick="saveWorld()">Simpan</button>
-    </div>
+  <div id="top-bar">
+    <div>💬 Chat Global</div>
+    <button onclick="window.location.href='lobby.html'">Kembali</button>
+  </div>
+  
+  <div id="canvas-container">
+    <canvas id="gameCanvas" width="320" height="320"></canvas>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
+  <div id="bottom-ui">
+    <div class="dpad">
+      <div></div>
+      <button onclick="move('up')">⬆️</button>
+      <div></div>
+      <button onclick="move('left')">⬅️</button>
+      <div></div>
+      <button onclick="move('right')">➡️</button>
+      <div></div>
+      <button onclick="move('down')">⬇️</button>
+      <div></div>
+    </div>
+    <button class="btn" onclick="openInventory()">🎒 Inventory</button>
+    <button class="btn" onclick="jump()">🔼 Lompat</button>
+  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCYLbIFVfaO487KN2z4ABDPTx1j0mBHF-o",
-      authDomain: "superworld1.firebaseapp.com",
-      databaseURL: "https://superworld1-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "superworld1",
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const uid = localStorage.getItem("uid");
-    if (!uid) window.location.href = "login.html";
-
-    let worldId = "default";
-    const tileSize = 32;
-    const worldSize = 20;
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+    const tileSize = 32;
+    const worldSize = 20;
+    let world = Array(worldSize).fill().map(() => Array(worldSize).fill(0));
 
-    let world = [];
-    let player = { x: 5, y: 5, frame: 1, image: new Image() };
+    let player = {
+      x: 10,
+      y: 10,
+      frame: 1,
+      image: new Image()
+    };
     player.image.src = `asset/hero/Idle (1).png`;
 
-    function logout() {
-      localStorage.removeItem("uid");
-      window.location.href = "login.html";
-    }
-
-    function drawWorld() {
+    function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let y = 0; y < worldSize; y++) {
         for (let x = 0; x < worldSize; x++) {
           if (world[y][x] === 1) {
             ctx.fillStyle = "#6c6";
-            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+            ctx.fillRect((x - player.x + 5) * tileSize, (y - player.y + 5) * tileSize, tileSize, tileSize);
           }
         }
       }
-      ctx.drawImage(player.image, player.x * tileSize, player.y * tileSize, tileSize, tileSize);
+      ctx.drawImage(player.image, 5 * tileSize, 5 * tileSize, tileSize, tileSize);
     }
 
-    function loadWorld() {
-      worldId = document.getElementById("worldInput").value || "default";
-      db.ref("worlds/" + worldId).once("value").then(snapshot => {
-        if (snapshot.exists()) {
-          world = snapshot.val();
-          document.getElementById("info").textContent = `World '${worldId}' dimuat.`;
-        } else {
-          world = Array(worldSize).fill().map(() => Array(worldSize).fill(0));
-          db.ref("worlds/" + worldId).set(world);
-          document.getElementById("info").textContent = `World '${worldId}' baru dibuat.`;
-        }
-        drawWorld();
-      });
+    function move(dir) {
+      if (dir === 'up' && player.y > 0) player.y--;
+      if (dir === 'down' && player.y < worldSize - 1) player.y++;
+      if (dir === 'left' && player.x > 0) player.x--;
+      if (dir === 'right' && player.x < worldSize - 1) player.x++;
+      draw();
     }
 
-    function saveWorld() {
-      db.ref("worlds/" + worldId).set(world);
-      document.getElementById("info").textContent = `World '${worldId}' disimpan.`;
+    function openInventory() {
+      alert("Inventory belum dibuat.");
     }
 
-    window.addEventListener("keydown", e => {
-      if (e.key === "ArrowUp") player.y--;
-      if (e.key === "ArrowDown") player.y++;
-      if (e.key === "ArrowLeft") player.x--;
-      if (e.key === "ArrowRight") player.x++;
-      drawWorld();
-    });
+    function jump() {
+      alert("Lompat belum dibuat.");
+    }
 
     setInterval(() => {
       player.frame = player.frame >= 10 ? 1 : player.frame + 1;
       player.image.src = `asset/hero/Idle (${player.frame}).png`;
-      drawWorld();
+      draw();
     }, 200);
 
-    loadWorld();
+    draw();
   </script>
 </body>
 </html>
