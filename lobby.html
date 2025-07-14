@@ -1,0 +1,120 @@
+<!-- lobby.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lobby | SuperWorld</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to bottom right, #1e1e2f, #2a2a3d);
+      color: white;
+      overflow: hidden;
+    }
+    #lobby {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    #username {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.2rem;
+    }
+    #logout {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: red;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      padding: 10px;
+      cursor: pointer;
+    }
+    #hero {
+      margin-top: auto;
+      margin-bottom: auto;
+      height: 128px;
+      width: 128px;
+      image-rendering: pixelated;
+    }
+    #worldBtn {
+      background: linear-gradient(90deg, #00c9ff, #92fe9d);
+      border: none;
+      border-radius: 15px;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-bottom: 30px;
+    }
+    #worldBtn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div id="lobby">
+    <div id="username">Memuat...</div>
+    <button id="logout" onclick="logout()">Logout</button>
+    <img id="hero" src="asset/hero/Idle (1).png" alt="Hero">
+    <button id="worldBtn" onclick="goToWorld()">Masuk Dunia</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCYLbIFVfaO487KN2z4ABDPTx1j0mBHF-o",
+      authDomain: "superworld1.firebaseapp.com",
+      databaseURL: "https://superworld1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "superworld1",
+      storageBucket: "superworld1.appspot.com",
+      messagingSenderId: "",
+      appId: ""
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const uid = localStorage.getItem("uid");
+    const usernameLabel = document.getElementById("username");
+
+    if (!uid) window.location.href = "login.html";
+
+    db.ref("users/" + uid).once("value").then(snapshot => {
+      const data = snapshot.val();
+      if (data && data.username) {
+        usernameLabel.textContent = "Halo, " + data.username;
+      } else {
+        usernameLabel.textContent = "Halo, Pemain";
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        localStorage.removeItem("uid");
+        window.location.href = "login.html";
+      });
+    }
+
+    function goToWorld() {
+      window.location.href = "world.html";
+    }
+
+    // Animasi Idle
+    let frame = 1;
+    setInterval(() => {
+      frame = frame >= 10 ? 1 : frame + 1;
+      document.getElementById("hero").src = `asset/hero/Idle (${frame}).png`;
+    }, 150);
+  </script>
+</body>
+</html>
