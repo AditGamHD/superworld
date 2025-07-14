@@ -1,0 +1,102 @@
+<!DOCTYPE html><html>
+<head>
+  <meta charset="UTF-8">
+  <title>UVO AI Brain Lab: Belajar Otomatis (Bahasa Indonesia)</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+    #log { max-height: 500px; overflow-y: auto; border: 1px solid #0f0; padding: 10px; }
+    h2 { color: #0ff; }
+  </style>
+</head>
+<body>
+<h2>🧠 UVO AI Brain Lab: Belajar Otomatis (Bahasa Indonesia)</h2>
+<div id="log"></div><script>
+const config = {
+  apiKey: "AIzaSyDTlkV6onTAiouhaGoZcHchQMHHREBegTs",
+  authDomain: "uvoai1.firebaseapp.com",
+  databaseURL: "https://uvoai1-default-rtdb.firebaseio.com",
+  projectId: "uvoai1",
+  storageBucket: "uvoai1.firebasestorage.app",
+  messagingSenderId: "45358133740",
+  appId: "1:45358133740:web:c04bf3758bddf2768390c9",
+  measurementId: "G-2XSZC23GL3"
+};
+firebase.initializeApp(config);
+const db = firebase.database();
+
+function log(text) {
+  const logBox = document.getElementById("log");
+  const line = document.createElement("div");
+  line.textContent = "[" + new Date().toLocaleTimeString() + "] " + text;
+  logBox.appendChild(line);
+  logBox.scrollTop = 999999;
+}
+
+// 🔎 Daftar sumber belajar lokal
+const sumberLokal = {
+  "kecerdasan_buatan": "https://id.m.wikipedia.org/wiki/Kecerdasan_buatan",
+  "jaringan_syaraf": "https://id.m.wikipedia.org/wiki/Jaringan_syaraf_buatan",
+  "pembelajaran_mesin": "https://id.m.wikipedia.org/wiki/Pembelajaran_mesin"
+};
+
+// 🧠 Simulasi pembelajaran AI dari topik yang bisa dibuka
+async function belajarSimulasi(topik, link) {
+  const jawaban = `Saya menemukan artikel tentang ${topik.replace(/_/g, ' ')} di ${link}. Topik ini sangat penting untuk perkembangan AI.`;
+  const tanya = topik.replace(/_/g, ' ');
+  await db.ref("ai_data/kata/" + tanya.toLowerCase()).set(jawaban);
+  await simpanLogBelajar(tanya, jawaban);
+  log(`📘 Belajar: ${tanya}`);
+}
+
+// 🔐 Simpan log pembelajaran dengan timestamp
+async function simpanLogBelajar(tanya, jawab) {
+  const waktu = Date.now();
+  await db.ref("ai_data/log/" + waktu).set({ tanya, jawab, waktu });
+}
+
+// 🔧 Inisialisasi struktur AI (sekali saja jika kosong)
+function inisialisasiStrukturJSON() {
+  const struktur = {
+    ai_data: {
+      kata: {},
+      belajar: {},
+      log: {},
+      plugin: {
+        definisi: {},
+        bantuan: {}
+      },
+      personality: {
+        nama: "UVO",
+        bahasa: "Indonesia",
+        gaya: "santai",
+        salam: "Halo! Saya UVO, siap belajar dan berkembang bersama Anda."
+      }
+    }
+  };
+  db.ref().update(struktur).then(() => log("🧱 Struktur JSON awal berhasil dibuat."));
+}
+
+// 🚀 Loop pembelajaran otomatis
+const daftarTopik = Object.entries(sumberLokal);
+let indeks = 0;
+
+setInterval(() => {
+  if (indeks >= daftarTopik.length) indeks = 0;
+  const [topik, link] = daftarTopik[indeks++];
+  log("🔍 Mempelajari: " + topik.replace(/_/g, ' '));
+  belajarSimulasi(topik, link);
+}, 1000);
+
+// 🔌 Cek koneksi Firebase
+firebase.database().ref(".info/connected").on("value", snap => {
+  if (snap.val() === true) {
+    log("✅ Terhubung ke Firebase.");
+  } else {
+    log("❌ Tidak terhubung ke Firebase.");
+  }
+});
+
+</script></body>
+  </html>
