@@ -1,1 +1,380 @@
-hallo
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADITdeveloper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f0c29, #1a1a40, #2c2c54);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      perspective: 1000px;
+    }
+    
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    #logo-container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      transform-style: preserve-3d;
+    }
+    
+    #logo {
+      color: white;
+      font-size: 5.5rem;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      opacity: 0;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+      animation: fadeInOut 4s ease forwards;
+      transform: translateZ(50px);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 300% 300%;
+      animation: gradientShift 6s ease infinite;
+    }
+    
+    @keyframes fadeInOut {
+      0% { 
+        opacity: 0; 
+        transform: translateY(50px) scale(0.8) rotateX(45deg);
+        filter: blur(10px);
+      }
+      20% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1.05) rotateX(0);
+        filter: blur(0);
+      }
+      70% { 
+        opacity: 1; 
+        transform: scale(1); 
+      }
+      100% { 
+        opacity: 0; 
+        transform: scale(1.1) rotateY(20deg);
+      }
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .glow {
+      display: inline-block;
+      position: relative;
+    }
+    
+    .glow::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: inherit;
+      filter: blur(25px);
+      z-index: -1;
+      opacity: 0;
+      animation: pulse 3s infinite alternate;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.9); }
+      100% { opacity: 0.7; transform: scale(1.1); }
+    }
+    
+    .developer-text {
+      display: block;
+      font-size: 1.8rem;
+      margin-top: 20px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      font-family: 'Poppins', sans-serif;
+      color: rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      animation: textFade 4s ease forwards;
+      animation-delay: 0.5s;
+      transform: translateY(20px);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    @keyframes textFade {
+      0% { 
+        opacity: 0; 
+        transform: translateY(20px);
+        letter-spacing: 15px;
+      }
+      30% { 
+        opacity: 1; 
+        transform: translateY(0);
+        letter-spacing: 6px;
+      }
+      70% { 
+        opacity: 1; 
+      }
+      100% { 
+        opacity: 0; 
+        transform: translateY(-20px);
+      }
+    }
+    
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+    }
+    
+    .background-element {
+      position: absolute;
+      width: 300%;
+      height: 300%;
+      top: -100%;
+      left: -100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      animation: rotate 60s linear infinite;
+      z-index: 1;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .floating-shapes {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 2;
+    }
+    
+    .shape {
+      position: absolute;
+      opacity: 0.1;
+      border-radius: 50%;
+      filter: blur(30px);
+    }
+    
+    .shape:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: 10%;
+      left: 20%;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      animation: float 15s ease-in-out infinite;
+    }
+    
+    .shape:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      top: 60%;
+      left: 70%;
+      background: linear-gradient(45deg, #a6c1ee, #fbc2eb);
+      animation: float 18s ease-in-out infinite reverse;
+    }
+    
+    .shape:nth-child(3) {
+      width: 250px;
+      height: 250px;
+      top: 30%;
+      left: 80%;
+      background: linear-gradient(45deg, #84fab0, #8fd3f4);
+      animation: float 12s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(-50px, -30px) rotate(90deg); }
+      50% { transform: translate(30px, 50px) rotate(180deg); }
+      75% { transform: translate(40px, -40px) rotate(270deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+    
+    .loading-bar {
+      position: absolute;
+      bottom: 20%;
+      width: 300px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 1s;
+    }
+    
+    .loading-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+      border-radius: 3px;
+      animation: loading 3s ease-in-out forwards;
+      animation-delay: 1.5s;
+    }
+    
+    @keyframes loading {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @media (max-width: 768px) {
+      #logo {
+        font-size: 3.5rem;
+      }
+      .developer-text {
+        font-size: 1.2rem;
+      }
+      .loading-bar {
+        width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-element"></div>
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  <div class="particles" id="particles"></div>
+  
+  <div id="logo-container">
+    <div id="logo">
+      <span class="glow"><span class="gradient-text">ADIT</span></span>
+      <span class="developer-text">developer</span>
+    </div>
+    <div class="loading-bar">
+      <div class="loading-progress"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Particle system for background
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 150;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.classList.add('circle');
+      
+      // Random properties
+      const size = Math.random() * 8 + 2;
+      const posX = Math.random() * window.innerWidth;
+      const posY = Math.random() * window.innerHeight;
+      const duration = Math.random() * 15 + 15;
+      const delay = Math.random() * 5;
+      const hue = Math.random() * 360;
+      
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${posX}px`;
+      particle.style.top = `${posY}px`;
+      particle.style.background = `hsla(${hue}, 80%, 70%, ${Math.random() * 0.5 + 0.2})`;
+      particle.style.boxShadow = `0 0 ${size*1.5}px hsla(${hue}, 80%, 70%, 0.7)`;
+      particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+      
+      // Create animation for particle movement
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes float {
+          0% { transform: translate(0, 0) rotate(0deg); }
+          25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(90deg); }
+          50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(180deg); }
+          75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(270deg); }
+          100% { transform: translate(0, 0) rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      particlesContainer.appendChild(particle);
+    }
+    
+    // Create floating circles animation
+    function createFloatingCircle() {
+      const circle = document.createElement('div');
+      circle.classList.add('circle');
+      
+      const size = Math.random() * 100 + 30;
+      const posX = Math.random() * window.innerWidth;
+      const duration = Math.random() * 25 + 25;
+      const hue = Math.random() * 360;
+      
+      circle.style.width = `${size}px`;
+      circle.style.height = `${size}px`;
+      circle.style.left = `${posX}px`;
+      circle.style.top = `${window.innerHeight + 100}px`;
+      circle.style.background = `radial-gradient(circle, hsla(${hue}, 80%, 70%, 0.1), transparent)`;
+      circle.style.border = `1px solid hsla(${hue}, 80%, 70%, 0.3)`;
+      circle.style.animation = `floatUp ${duration}s linear forwards`;
+      
+      document.body.appendChild(circle);
+      
+      // Remove circle after animation completes
+      setTimeout(() => {
+        circle.remove();
+      }, duration * 1000);
+      
+      // Create animation for this circle
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes floatUp {
+          0% { transform: translateY(0) scale(0.5); opacity: 0.3; }
+          10% { opacity: 0.6; }
+          100% { transform: translateY(-${window.innerHeight + 200}px) scale(1.5); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Create initial floating circles
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        createFloatingCircle();
+      }, i * 2000);
+    }
+    
+    // Create floating circles periodically
+    setInterval(createFloatingCircle, 3000);
+    
+    // Redirect after 4 seconds
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 4000);
+  </script>
+</body>
+</html>
