@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuperWorld Map Designer</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      font-family: monospace;
+      background-color: #222;
+    }
+    #sidebar {
+      width: 220px;
+      background: #111;
+      color: white;
+      overflow-y: scroll;
+      padding: 10px;
+      box-shadow: inset -2px 0 5px rgba(0,0,0,0.5);
+    }
+    #sidebar h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .block {
+      width: 48px;
+      height: 48px;
+      margin: 4px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      object-fit: contain;
+      background-color: #444;
+    }
+    .block.selected {
+      border-color: yellow;
+    }
+    #grid {
+      flex: 1;
+      overflow: scroll;
+      background: #333;
+    }
+    #canvas {
+      background: #000;
+    }
+    #toolbar {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 99;
+    }
+    #toolbar button {
+      padding: 10px;
+      margin-left: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <h2>Blok</h2>
+    <div id="blockList"></div>
+  </div>
+  <div id="grid">
+    <canvas id="canvas" width="3232" height="3232"></canvas>
+  </div>
+  <div id="toolbar">
+    <button onclick="exportJSON()">Konversi ke JSON</button>
+    <button onclick="clearGrid()">Kosongkan</button>
+  </div>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const blockListDiv = document.getElementById('blockList');
+
+    const TILE_SIZE = 32;
+    const GRID_WIDTH = 101;
+    const GRID_HEIGHT = 101;
+
+    const blocks = [
+      "ancient_debris_side", "azalea_side", "barrel_side", "basalt_side", "bee_nest_side", "beehive_side",
+      "bell_side", "big_dripleaf_side", "big_dripleaf_side2", "blast_furnace_side", "bone_block_side", "cake_side",
+      "cartography_table_side", "cartography_table_side2", "cauldron_side", "cauldron_side2",
+      "chain_command_block_side_mipmap", "chest_side", "command_block_side_mipmap", "computer_side",
+      "crafting_table_side", "crimson_nylium_side", "daylight_detector_side", "dirt_podzol_side",
+      "dried_kelp_side_s", "dried_kelp_side_b", "enchanting_table_side", "ender_chest_side", "endframe_side",
+      "fletcher_table_side", "fletcher_table_side2", "flowering_azalea_side", "furnace_side",
+      "grass_path_side", "grass_side_carried", "grass_side_snowed", "hay_block_side", "honey_side",
+      "hopper_inside", "hopper_outside", "jigsaw_side", "jukebox_side", "lectern_side", "lodestone_side",
+      "loom_side", "melon_side", "mushroom_block_inside", "mycelium_side", "observer_side", "piston_side",
+      "polished_basalt_side", "pumpkin_side", "quartz_block_side", "repeating_command_block_side_mipmap",
+      "respawn_anchor_side_0", "respawn_anchor_side_1", "respawn_anchor_side_2", "respawn_anchor_side_3",
+      "respawn_anchor_side_4", "small_dripleaf_side", "smithing_table_side", "smoker_side",
+      "stone_slab_side", "stonecutter_other_side", "stonecutter_2_side", "stripped_crimson_stem_side",
+      "stripped_warped_stem_side", "target_side", "tnt_side", "warped_nylium_side"
+    ];
+
+    let selectedBlock = blocks[0];
+    const blockImages = {};
+    const gridData = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(null));
+
+    function preloadBlocks() {
+      let loaded = 0;
+      const total = blocks.length;
+
+      blocks.forEach(name => {
+        const img = new Image();
+        img.src = `asset/block/${name}.png`;
+        img.onload = () => {
+          loaded++;
+          if (loaded === total) drawGrid();
+        };
+        img.onerror = () => {
+          console.error("Gagal load:", name);
+        }
+        blockImages[name] = img;
+
+        const div = document.createElement('img');
+        div.src = img.src;
+        div.className = 'block';
+        if (name === selectedBlock) div.classList.add('selected');
+        div.onclick = () => {
+          selectedBlock = name;
+          document.querySelectorAll('.block').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+        };
+        blockListDiv.appendChild(div);
+      });
+    }
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let y = 0; y < GRID_HEIGHT; y++) {
+        for (let x = 0; x < GRID_WIDTH; x++) {
+          const block = gridData[y][x];
+          if (block && blockImages[block]) {
+            ctx.drawImage(blockImages[block], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          } else {
+            ctx.strokeStyle = '#333';
+            ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          }
+        }
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
+      const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+      if (x >= 0 && y >= 0 && x < GRID_WIDTH && y < GRID_HEIGHT) {
+        if (e.button === 2) {
+          gridData[y][x] = null;
+        } else {
+          gridData[y][x] = selectedBlock;
+        }
+        drawGrid();
+      }
+    });
+    canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+    function exportJSON() {
+      const json = JSON.stringify(gridData);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'world.json';
+      a.click();
+    }
+
+    function clearGrid() {
+      for (let y = 0; y < GRID_HEIGHT; y++)
+        for (let x = 0; x < GRID_WIDTH; x++)
+          gridData[y][x] = null;
+      drawGrid();
+    }
+
+    preloadBlocks();
+  </script>
+</body>
+</html>
