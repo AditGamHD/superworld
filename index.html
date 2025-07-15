@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ADITdeveloper</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -21,9 +21,212 @@
       justify-content: center;
       align-items: center;
       font-family: 'Poppins', sans-serif;
-      perspective: 1000px;
+      position: relative;
     }
     
+    /* Preloader untuk stabilitas animasi */
+    #preloader {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #0a081f;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease;
+    }
+    
+    .preloader-text {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2rem;
+      margin-top: 20px;
+      letter-spacing: 2px;
+    }
+    
+    /* Splash screen styling */
+    #splash-screen {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    
+    .logo-container {
+      position: relative;
+      display: flex;
+    }
+    
+    .logo-letter {
+      font-size: 8rem;
+      font-weight: 900;
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      opacity: 0;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+      margin: 0 5px;
+      transform: translateY(50px);
+      animation: letterAppear 0.5s forwards;
+      filter: blur(8px);
+    }
+    
+    .logo-letter:nth-child(1) { animation-delay: 0.1s; }
+    .logo-letter:nth-child(2) { animation-delay: 0.3s; }
+    .logo-letter:nth-child(3) { animation-delay: 0.5s; }
+    .logo-letter:nth-child(4) { animation-delay: 0.7s; }
+    
+    @keyframes letterAppear {
+      0% { 
+        opacity: 0; 
+        transform: translateY(50px) scale(0.8);
+        filter: blur(8px);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.1);
+        text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff;
+        filter: blur(4px);
+      }
+      100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        filter: blur(0);
+      }
+    }
+    
+    .developer-text {
+      display: block;
+      font-size: 2rem;
+      margin-top: 30px;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      animation: textFade 0.8s forwards;
+      animation-delay: 1.2s;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+    
+    @keyframes textFade {
+      0% { 
+        opacity: 0; 
+        transform: translateY(20px);
+      }
+      100% { 
+        opacity: 1; 
+        transform: translateY(0);
+      }
+    }
+    
+    .glow-effect {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+      filter: blur(30px);
+      opacity: 0;
+      animation: glowPulse 1s infinite alternate;
+      z-index: -1;
+    }
+    
+    @keyframes glowPulse {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 0.7; transform: scale(1.2); }
+    }
+    
+    /* Loading screen styling */
+    #loading-screen {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .loading-title {
+      font-size: 3rem;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+      margin-bottom: 50px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    }
+    
+    .loading-bar-container {
+      width: 80%;
+      max-width: 500px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff00cc, #333399, #00ccff);
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .loading-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shine 1.5s infinite;
+    }
+    
+    @keyframes shine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .loading-text {
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.2rem;
+      opacity: 0;
+      text-align: center;
+      max-width: 80%;
+    }
+    
+    .loading-percentage {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    
+    /* Background elements */
     .particles {
       position: absolute;
       top: 0;
@@ -33,139 +236,11 @@
       z-index: 0;
     }
     
-    #logo-container {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      transform-style: preserve-3d;
-    }
-    
-    #logo {
-      color: white;
-      font-size: 5.5rem;
-      font-weight: 800;
-      font-family: 'Montserrat', sans-serif;
-      opacity: 0;
-      text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-      animation: fadeInOut 4s ease forwards;
-      transform: translateZ(50px);
-    }
-    
-    .gradient-text {
-      background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-size: 300% 300%;
-      animation: gradientShift 6s ease infinite;
-    }
-    
-    @keyframes fadeInOut {
-      0% { 
-        opacity: 0; 
-        transform: translateY(50px) scale(0.8) rotateX(45deg);
-        filter: blur(10px);
-      }
-      20% { 
-        opacity: 1; 
-        transform: translateY(0) scale(1.05) rotateX(0);
-        filter: blur(0);
-      }
-      70% { 
-        opacity: 1; 
-        transform: scale(1); 
-      }
-      100% { 
-        opacity: 0; 
-        transform: scale(1.1) rotateY(20deg);
-      }
-    }
-    
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
-    .glow {
-      display: inline-block;
-      position: relative;
-    }
-    
-    .glow::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: inherit;
-      filter: blur(25px);
-      z-index: -1;
-      opacity: 0;
-      animation: pulse 3s infinite alternate;
-    }
-    
-    @keyframes pulse {
-      0% { opacity: 0.3; transform: scale(0.9); }
-      100% { opacity: 0.7; transform: scale(1.1); }
-    }
-    
-    .developer-text {
-      display: block;
-      font-size: 1.8rem;
-      margin-top: 20px;
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      font-family: 'Poppins', sans-serif;
-      color: rgba(255, 255, 255, 0.9);
-      opacity: 0;
-      animation: textFade 4s ease forwards;
-      animation-delay: 0.5s;
-      transform: translateY(20px);
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-    
-    @keyframes textFade {
-      0% { 
-        opacity: 0; 
-        transform: translateY(20px);
-        letter-spacing: 15px;
-      }
-      30% { 
-        opacity: 1; 
-        transform: translateY(0);
-        letter-spacing: 6px;
-      }
-      70% { 
-        opacity: 1; 
-      }
-      100% { 
-        opacity: 0; 
-        transform: translateY(-20px);
-      }
-    }
-    
     .circle {
       position: absolute;
       border-radius: 50%;
       pointer-events: none;
       z-index: 5;
-    }
-    
-    .background-element {
-      position: absolute;
-      width: 300%;
-      height: 300%;
-      top: -100%;
-      left: -100%;
-      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-      animation: rotate 60s linear infinite;
-      z-index: 1;
-    }
-    
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
     }
     
     .floating-shapes {
@@ -174,7 +249,7 @@
       height: 100%;
       top: 0;
       left: 0;
-      z-index: 2;
+      z-index: 1;
     }
     
     .shape {
@@ -202,179 +277,286 @@
       animation: float 18s ease-in-out infinite reverse;
     }
     
-    .shape:nth-child(3) {
-      width: 250px;
-      height: 250px;
-      top: 30%;
-      left: 80%;
-      background: linear-gradient(45deg, #84fab0, #8fd3f4);
-      animation: float 12s ease-in-out infinite;
-    }
-    
     @keyframes float {
       0% { transform: translate(0, 0) rotate(0deg); }
-      25% { transform: translate(-50px, -30px) rotate(90deg); }
-      50% { transform: translate(30px, 50px) rotate(180deg); }
-      75% { transform: translate(40px, -40px) rotate(270deg); }
+      50% { transform: translate(-50px, -30px) rotate(180deg); }
       100% { transform: translate(0, 0) rotate(360deg); }
     }
     
-    .loading-bar {
-      position: absolute;
-      bottom: 20%;
-      width: 300px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeIn 1s ease forwards;
-      animation-delay: 1s;
+    /* Media queries untuk responsivitas */
+    @media (max-width: 1200px) {
+      .logo-letter {
+        font-size: 7rem;
+      }
+      .developer-text {
+        font-size: 1.8rem;
+      }
     }
     
-    .loading-progress {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
-      border-radius: 3px;
-      animation: loading 3s ease-in-out forwards;
-      animation-delay: 1.5s;
-    }
-    
-    @keyframes loading {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @media (max-width: 992px) {
+      .logo-letter {
+        font-size: 6rem;
+      }
+      .loading-title {
+        font-size: 2.5rem;
+      }
     }
     
     @media (max-width: 768px) {
-      #logo {
+      .logo-letter {
+        font-size: 4.5rem;
+        margin: 0 3px;
+      }
+      
+      .developer-text {
+        font-size: 1.4rem;
+        letter-spacing: 5px;
+        margin-top: 20px;
+      }
+      
+      .loading-title {
+        font-size: 2rem;
+        margin-bottom: 30px;
+      }
+      
+      .loading-bar-container {
+        height: 15px;
+      }
+      
+      .loading-text {
+        font-size: 1rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .logo-letter {
         font-size: 3.5rem;
       }
+      
+      .developer-text {
+        font-size: 1.1rem;
+        letter-spacing: 3px;
+        margin-top: 15px;
+      }
+      
+      .loading-title {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+      }
+      
+      .loading-bar-container {
+        height: 12px;
+        width: 90%;
+      }
+      
+      .loading-text {
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .logo-letter {
+        font-size: 2.8rem;
+      }
+      
+      .developer-text {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+      }
+      
+      .loading-title {
+        font-size: 1.3rem;
+      }
+    }
+    
+    @media (max-height: 600px) {
+      .logo-letter {
+        font-size: 5rem;
+      }
+      
       .developer-text {
         font-size: 1.2rem;
+        margin-top: 15px;
       }
-      .loading-bar {
-        width: 200px;
+    }
+    
+    @media (max-height: 500px) {
+      .logo-letter {
+        font-size: 4rem;
+      }
+      
+      .developer-text {
+        font-size: 1rem;
+      }
+      
+      .loading-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="background-element"></div>
+  <!-- Preloader untuk stabilitas animasi -->
+  <div id="preloader">
+    <div class="preloader-text">Mempersiapkan aplikasi...</div>
+  </div>
+  
+  <!-- Background elements -->
   <div class="floating-shapes">
     <div class="shape"></div>
     <div class="shape"></div>
-    <div class="shape"></div>
   </div>
+  
   <div class="particles" id="particles"></div>
   
-  <div id="logo-container">
-    <div id="logo">
-      <span class="glow"><span class="gradient-text">ADIT</span></span>
-      <span class="developer-text">developer</span>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <div class="logo-container">
+      <div class="logo-letter">A</div>
+      <div class="logo-letter">D</div>
+      <div class="logo-letter">I</div>
+      <div class="logo-letter">T</div>
     </div>
-    <div class="loading-bar">
-      <div class="loading-progress"></div>
+    <span class="developer-text">developer</span>
+  </div>
+  
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loading-title">MEMUAT APLIKASI</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar">
+        <div class="loading-percentage">0%</div>
+      </div>
     </div>
+    <div class="loading-text">Memuat sumber daya aplikasi...</div>
   </div>
   
   <script>
-    // Particle system for background
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 150;
-    
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      particle.classList.add('circle');
+    // Fungsi untuk membuat partikel background
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 100;
       
-      // Random properties
-      const size = Math.random() * 8 + 2;
-      const posX = Math.random() * window.innerWidth;
-      const posY = Math.random() * window.innerHeight;
-      const duration = Math.random() * 15 + 15;
-      const delay = Math.random() * 5;
-      const hue = Math.random() * 360;
-      
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      particle.style.left = `${posX}px`;
-      particle.style.top = `${posY}px`;
-      particle.style.background = `hsla(${hue}, 80%, 70%, ${Math.random() * 0.5 + 0.2})`;
-      particle.style.boxShadow = `0 0 ${size*1.5}px hsla(${hue}, 80%, 70%, 0.7)`;
-      particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
-      
-      // Create animation for particle movement
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes float {
-          0% { transform: translate(0, 0) rotate(0deg); }
-          25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(90deg); }
-          50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(180deg); }
-          75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(270deg); }
-          100% { transform: translate(0, 0) rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(style);
-      
-      particlesContainer.appendChild(particle);
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('circle');
+        
+        // Properti acak
+        const size = Math.random() * 6 + 2;
+        const posX = Math.random() * window.innerWidth;
+        const posY = Math.random() * window.innerHeight;
+        const duration = Math.random() * 15 + 15;
+        const delay = Math.random() * 5;
+        const hue = Math.random() * 360;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}px`;
+        particle.style.top = `${posY}px`;
+        particle.style.background = `hsla(${hue}, 80%, 70%, ${Math.random() * 0.5 + 0.2})`;
+        particle.style.boxShadow = `0 0 ${size*1.5}px hsla(${hue}, 80%, 70%, 0.7)`;
+        particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+        
+        particlesContainer.appendChild(particle);
+      }
     }
     
-    // Create floating circles animation
-    function createFloatingCircle() {
-      const circle = document.createElement('div');
-      circle.classList.add('circle');
+    // Fungsi untuk membuat efek glow pada huruf
+    function createLetterGlows() {
+      const letters = document.querySelectorAll('.logo-letter');
+      const container = document.querySelector('.logo-container');
       
-      const size = Math.random() * 100 + 30;
-      const posX = Math.random() * window.innerWidth;
-      const duration = Math.random() * 25 + 25;
-      const hue = Math.random() * 360;
+      letters.forEach((letter, index) => {
+        const glow = document.createElement('div');
+        glow.classList.add('glow-effect');
+        glow.style.animationDelay = `${index * 0.2 + 0.1}s`;
+        
+        // Posisikan glow di belakang huruf
+        setTimeout(() => {
+          const rect = letter.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          
+          glow.style.left = `${rect.left - containerRect.left + rect.width/2}px`;
+          glow.style.top = `${rect.top - containerRect.top + rect.height/2}px`;
+        }, 100);
+        
+        container.appendChild(glow);
+      });
+    }
+    
+    // Tampilkan splash screen
+    function showSplashScreen() {
+      const preloader = document.getElementById('preloader');
+      const splashScreen = document.getElementById('splash-screen');
       
-      circle.style.width = `${size}px`;
-      circle.style.height = `${size}px`;
-      circle.style.left = `${posX}px`;
-      circle.style.top = `${window.innerHeight + 100}px`;
-      circle.style.background = `radial-gradient(circle, hsla(${hue}, 80%, 70%, 0.1), transparent)`;
-      circle.style.border = `1px solid hsla(${hue}, 80%, 70%, 0.3)`;
-      circle.style.animation = `floatUp ${duration}s linear forwards`;
+      // Sembunyikan preloader
+      preloader.style.opacity = '0';
       
-      document.body.appendChild(circle);
-      
-      // Remove circle after animation completes
+      // Setelah fade out, tampilkan splash screen
       setTimeout(() => {
-        circle.remove();
-      }, duration * 1000);
+        preloader.style.display = 'none';
+        splashScreen.style.opacity = '1';
+      }, 800);
+    }
+    
+    // Tampilkan loading screen
+    function showLoadingScreen() {
+      const splashScreen = document.getElementById('splash-screen');
+      const loadingScreen = document.getElementById('loading-screen');
       
-      // Create animation for this circle
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes floatUp {
-          0% { transform: translateY(0) scale(0.5); opacity: 0.3; }
-          10% { opacity: 0.6; }
-          100% { transform: translateY(-${window.innerHeight + 200}px) scale(1.5); opacity: 0; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    
-    // Create initial floating circles
-    for (let i = 0; i < 8; i++) {
+      // Sembunyikan splash screen
+      splashScreen.style.opacity = '0';
+      
+      // Setelah fade out, tampilkan loading screen
       setTimeout(() => {
-        createFloatingCircle();
-      }, i * 2000);
+        splashScreen.style.display = 'none';
+        loadingScreen.style.opacity = '1';
+        loadingScreen.style.pointerEvents = 'all';
+        
+        // Animasi elemen loading
+        document.querySelector('.loading-title').style.opacity = '1';
+        document.querySelector('.loading-title').style.transform = 'translateY(0)';
+        document.querySelector('.loading-text').style.opacity = '1';
+        
+        // Animasi loading bar
+        const loadingBar = document.querySelector('.loading-bar');
+        const percentage = document.querySelector('.loading-percentage');
+        let width = 0;
+        
+        const interval = setInterval(() => {
+          if (width >= 100) {
+            clearInterval(interval);
+            // Redirect setelah loading selesai
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 500);
+            return;
+          }
+          
+          width++;
+          loadingBar.style.width = `${width}%`;
+          percentage.textContent = `${width}%`;
+        }, 30); // 3 detik untuk 100% (100 langkah * 30ms = 3000ms)
+      }, 800);
     }
     
-    // Create floating circles periodically
-    setInterval(createFloatingCircle, 3000);
-    
-    // Redirect after 4 seconds
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 4000);
+    // Inisialisasi aplikasi
+    window.addEventListener('load', () => {
+      // Buat partikel background
+      createParticles();
+      
+      // Tunggu 3 detik untuk stabilitas animasi
+      setTimeout(() => {
+        // Tampilkan splash screen
+        showSplashScreen();
+        
+        // Tampilkan loading screen setelah 3 detik
+        setTimeout(() => {
+          showLoadingScreen();
+        }, 3000);
+      }, 3000);
+    });
   </script>
 </body>
 </html>
